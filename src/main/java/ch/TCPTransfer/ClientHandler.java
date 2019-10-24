@@ -35,15 +35,15 @@ public class ClientHandler extends SimpleChannelInboundHandler {
             try {
                 //注意！ByteBuf引用计数先加1，因为ByteBuf引用计数到0时会报错
                 buf.retain();
-                serverChannel.writeAndFlush(buf).sync();
+                serverChannel.writeAndFlush(buf).sync(); //writeAndFlush(buf)会将buf引用计-1
             } catch (Exception e) {
                 System.out.println("writeAndFlush出错: " + serverChannel);
             }
         }
 
-        //这里应该是1才不会报错，因为SimpleChannelInboundHandler最后会自动将ByteBuf引用计数减1
+        //这里应该是1才不会报错，因为SimpleChannelInboundHandler最后会自动将msg引用计数减1
         //System.out.println("ByteBuf引用计数: " + buf.refCnt());
-        buf = null;
+        buf.release(buf.refCnt());
         serverChannelCounts = n;
     }
 
